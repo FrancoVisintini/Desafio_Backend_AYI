@@ -1,47 +1,52 @@
-// const Productos = require('../models/ProductosModel');
-// const validator = require('validator');
+const Products = require('../models/ProductModel');
+const validator = require('validator');
 
-const getAllProductsController = async (req, res) => {
+const getProductsController = async (req, res) => {
+    
     try {
-        // const productos = await Productos.find()
-        // res.send(productos)
-        res.send('entré al controller')
+        let {id} = req.params
+        let products;
+        if(id){
+            products = await Products.findById(id)
+        }
+        else {
+            products = await Products.find()
+        }
+        products !== null ?
+        res.send(products)
+        : res.status(404).send('Product not found')
     } catch (e) {
-        res.status(500).send("Hubo un error en la consulta")
+        res.status(500).send("There was a problem with the request")
     }
 }
 
 const createProductController = async (req, res) => {
-    const { nombre } = req.body
-    if (!validator.isAlpha(nombre)) {
-        res.status(400).send("Parametros invalidos")
+    let { name, price } = req.body
+    if (!validator.isAlpha(name,'en-US', {ignore: ' -'}) || typeof price !== 'number') {
+        res.status(400).send("Invalid parameters")
         return
     }
     try {
-        const nuevo_producto = new Productos(req.body)
-        await nuevo_producto.save()
-        res.send("Producto creado")
+        const new_product = new Products(req.body)
+        await new_product.save()
+        res.send("Product created")
     } catch (e) {
-        res.status(500).send("Hubo un error en la consulta")
+        res.status(500).send("Server error")
     }
 }
 
 const editProductController = async (req, res) => {
-    const { id, nombre } = req.body
-    if (!validator.isMongoId(id)) {
-        res.status(400).send("Parametros invalidos")
-        return
-    }
-    if (!validator.isAlpha(nombre)) {
-        res.status(400).send("Parametros invalidos")
+    const { id, name, price } = req.body
+    if (!validator.isMongoId(id) || !validator.isAlpha(name,'en-US', {ignore: ' -'}) || typeof price !== 'number') {
+        res.status(400).send("Invalid parameters")
         return
     }
     try {
-        const producto = await Productos.findById(id)
-        await producto.update({ $set: { nombre } })
-        res.send("Se guardo la nueva informacion!")
+        const producto = await Products.findById(id)
+        await producto.update({ $set: { name, price } })
+        res.send("Product updated!")
     } catch (e) {
-        res.status(500).send("Hubo un error en la consulta")
+        res.status(500).send("There was a problem with the request")
     }
 }
 
@@ -53,19 +58,19 @@ const deleteProductController = async (req, res) => {
     }
 
     try {
-        const encontrado = await Productos.findByIdAndDelete(id)
-        if (encontrado) {
-            res.send("Producto Borrado")
+        const productToDelete = await Products.findByIdAndDelete(id)
+        if (productToDelete) {
+            res.send("Product deleted")
         } else {
-            res.status(400).send("El producto no existe / No se puede borrar")
+            res.status(404).send("Product not found")
         }
     } catch (e) {
-        res.status(500).send("Hubo un error en la consulta")
+        res.status(500).send("Server error")
     }
 }
 
 module.exports = {
-    getAllProductsController,
+    getProductsController,
     createProductController,
     editProductController,
     deleteProductController
