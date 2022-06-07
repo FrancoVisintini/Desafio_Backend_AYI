@@ -3,6 +3,12 @@ const mongoose = require('mongoose')
 const dotenv = require('dotenv')
 const bodyParser = require('body-parser')
 const routerProducts = require('./api/routes/ProductRoutes')
+const routerUsers = require('./api/routes/UserRoutes')
+const routerSales = require('./api/routes/SaleRoutes')
+const data_charger = require('./api/controllers/DataController')
+
+
+
 dotenv.config()
 
 
@@ -15,6 +21,9 @@ app.use(bodyParser.urlencoded({extended:true}))
 
 //routes
 app.use('/products', routerProducts)
+app.use('/users', routerUsers)
+app.use('/sales', routerSales)
+app.use('/data', data_charger)
 
 
 
