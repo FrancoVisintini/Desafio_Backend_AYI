@@ -1,5 +1,6 @@
 const Users = require('../models/UserModel');
 const validator = require('validator');
+const bcrypt = require('bcrypt')
 
 const getUsersController = async (req, res) => {
     
@@ -21,15 +22,19 @@ const getUsersController = async (req, res) => {
 }
 
 const createUserController = async (req, res) => {
-    let { first_name, last_name, email} = req.body
-    if (!validator.isAlpha(first_name,'en-US', {ignore: ' -'}) || !validator.isAlpha(last_name,'en-US', {ignore: ' -'}) || !validator.isEmail(email)) {
+    let { first_name, last_name, email, password} = req.body
+    if (!validator.isAlpha(first_name,'en-US', {ignore: ' -'}) || !validator.isAlpha(last_name,'en-US', {ignore: ' -'}) || !validator.isEmail(email) || !validator.isAlphanumeric(password)) {
         res.status(400).send("Invalid parameters")
         return
     }
     try {
-        const new_user = new Users(req.body)
-        await new_user.save()
-        res.send("User created")
+        const rounds = 10
+        bcrypt.hash(password,rounds, (err,hash)=>{
+            password_hashed = hash
+            const new_user = new Users({first_name, last_name, email, password: password_hashed})
+            new_user.save()
+            .then(() => {res.send("User created")})
+        })
     } catch (e) {
         res.status(500).send("Server error")
     }
