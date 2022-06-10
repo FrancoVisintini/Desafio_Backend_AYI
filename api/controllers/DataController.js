@@ -5,7 +5,7 @@ const user_data = require('../data/users.json')
 const bcrypt = require('bcrypt')
 
 
-const getDataController = async (req,res)=>{
+const chargeDataController = async (req,res)=>{
     try {
         user_data.map(user => {
             const rounds = 10
@@ -30,4 +30,4 @@ const getDataController = async (req,res)=>{
 
 
 
-module.exports = getDataController;
+module.exports = chargeDataController;
