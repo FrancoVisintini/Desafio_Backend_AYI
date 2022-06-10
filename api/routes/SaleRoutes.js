@@ -1,16 +1,17 @@
 const { Router } = require('express');
 const { getSalesController , createSaleController , editSaleController , deleteSaleController } = require('../controllers/SaleController');
+const verifyToken = require('../middlewares/authentication')
 
 const router = Router();
 
 
-router.get("/:id",getSalesController)
+router.get("/", verifyToken, getSalesController)
 
-router.post("/",createSaleController)
+router.post("/", verifyToken, createSaleController)
 
-router.put("/",editSaleController)
+router.put("/", verifyToken, editSaleController)
 
-router.delete("/",deleteSaleController)
+router.delete("/", verifyToken, deleteSaleController)
 
 
 module.exports = router;

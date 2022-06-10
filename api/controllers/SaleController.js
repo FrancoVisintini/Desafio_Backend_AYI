@@ -7,7 +7,7 @@ const validator = require('validator');
 const getSalesController = async (req, res) => {
     
     try {
-        let {id} = req.params
+        let {id} = req.query
         let sales;
         if(id){
             sales = await Sales.findById(id)
@@ -50,14 +50,14 @@ const createSaleController = async (req, res) => {
 }
 
 const editSaleController = async (req, res) => {
-    const { id, first_name, last_name, email} = req.body
-    if (!validator.isMongoId(id) || !validator.isAlpha(first_name,'en-US', {ignore: ' -'}) || !validator.isAlpha(last_name,'en-US', {ignore: ' -'}) || !validator.isEmail(email)) {
+    const { id, id_user, id_product, quant} = req.body
+    if (!validator.isMongoId(id_user) || !validator.isMongoId(id_product) || typeof quant !== 'number') {
         res.status(400).send("Invalid parameters")
         return
     }
     try {
-        const saleo = await Sales.findById(id)
-        await saleo.update({ $set: { first_name, last_name, email } })
+        const sale = await Sales.findById(id)
+        await sale.update({ $set: { id_user, id_product, quant } })
         res.send("Sale updated!")
     } catch (e) {
         res.status(500).send("There was a problem with the request")

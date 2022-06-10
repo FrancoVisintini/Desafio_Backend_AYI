@@ -4,7 +4,7 @@ const verifyToken = require('../middlewares/authentication')
 
 const router = Router();
 
-router.get("/:id", verifyToken, getProductsController)
+router.get("/", verifyToken, getProductsController)
 
 router.post("/", verifyToken, createProductController)
 

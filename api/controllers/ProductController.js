@@ -4,7 +4,7 @@ const validator = require('validator');
 const getProductsController = async (req, res) => {
     
     try {
-        let {id} = req.params
+        let {id} = req.query
         let products;
         if(id){
             products = await Products.findById(id)
