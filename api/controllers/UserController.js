@@ -1,11 +1,19 @@
 const Users = require('../models/UserModel');
+const jwt = require("jsonwebtoken")
+require('dotenv').config();
 const validator = require('validator');
 const bcrypt = require('bcrypt')
+const {SECRET_KEY} = process.env
+
+const expired_tokens = []
 
 const getUsersController = async (req, res) => {
+
+    let id = req.query.id ? req.query.id : ''
+    console.log(id)
     
     try {
-        let {id} = req.params
+    
         let users;
         if(id){
             users = await Users.findById(id)
@@ -21,7 +29,7 @@ const getUsersController = async (req, res) => {
     }
 }
 
-const createUserController = async (req, res) => {
+const signUpUserController = async (req, res) => {
     let { first_name, last_name, email, password} = req.body
     if (!validator.isAlpha(first_name,'en-US', {ignore: ' -'}) || !validator.isAlpha(last_name,'en-US', {ignore: ' -'}) || !validator.isEmail(email) || !validator.isAlphanumeric(password)) {
         res.status(400).send("Invalid parameters")
@@ -39,6 +47,55 @@ const createUserController = async (req, res) => {
         res.status(500).send("Server error")
     }
 }
+
+const loginUserController = async (req, res) =>{
+    let {email, password} = req.body
+    
+    try{
+        const user = await Users.find({email})
+
+        console.log(user)
+        
+        if(!user){
+            return res.status(400).send('User not found')
+        }
+
+        const stored_password = user[0].password
+        bcrypt.compare(password, stored_password, (err)=>{
+            if(err){
+                res.status(400).send("User can not be authenticated")
+                return;
+            }
+
+            const payload = {
+                email,
+                password
+            }
+
+            const token = jwt.sign(payload, SECRET_KEY ,{
+                expiresIn : 60 * 1
+                })
+
+            res.send({
+                message: 'token created',
+                token
+            })
+        })
+    }
+    catch(e){
+        res.status(500).send("Server Error")
+      }
+}
+
+const logoutUserController = async (req, res) =>{
+    const bearerHeader =  req.headers['authorization'];
+    const token = bearerHeader.split(" ")[1]
+
+    expired_tokens.push(token)
+    res.send('User logged out')
+}
+
+
 
 const editUserController = async (req, res) => {
     const { id, first_name, last_name, email} = req.body
@@ -76,7 +133,10 @@ const deleteUserController = async (req, res) => {
 
 module.exports = {
     getUsersController,
-    createUserController,
+    signUpUserController,
+    loginUserController,
+    logoutUserController,
     editUserController,
-    deleteUserController
+    deleteUserController,
+    expired_tokens
 }
