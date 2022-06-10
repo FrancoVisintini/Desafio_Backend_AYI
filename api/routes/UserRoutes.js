@@ -1,25 +1,26 @@
 const { Router } = require('express');
+
 const { getUsersController , signUpUserController ,loginUserController, logoutUserController, editUserController , deleteUserController } = require('../controllers/UserController');
 const verifyToken = require('../middlewares/authentication')
 
 
 const router = Router();
 
-
-router.get("/",getUsersController)
-
 router.post("/signup",signUpUserController)
 
 router.post("/login", loginUserController)
 
-router.put("/",editUserController)
+router.post('/logout', verifyToken, logoutUserController)
 
-router.delete("/",deleteUserController)
+router.put("/", verifyToken, editUserController)
 
-router.get('/privado', verifyToken, (req,res) =>{
-    res.send('VERIFICO')
-} )
+router.delete("/", verifyToken, deleteUserController)
 
-router.get('/logout', verifyToken, logoutUserController)
+router.get("/", verifyToken, getUsersController)
+
+router.get('/privado', verifyToken, (req,res)=>{
+    res.send('VERIFICADO')
+})
+
 
 module.exports = router;
