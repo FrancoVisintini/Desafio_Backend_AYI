@@ -24,6 +24,9 @@ app.use('/products', routerProducts)
 app.use('/users', routerUsers)
 app.use('/sales', routerSales)
 app.use('/data', data_charger)
+app.use('/*', (req,res)=>{
+    res.status(404).send('endpoint does not exists')
+})
 
 
 

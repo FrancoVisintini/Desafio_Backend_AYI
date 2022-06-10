@@ -7,17 +7,20 @@ const validator = require('validator');
 const getSalesController = async (req, res) => {
     
     try {
-        let {id} = req.query
+        let {id, user, product} = req.query
         let sales;
         if(id){
             sales = await Sales.findById(id)
         }
         else {
-            sales = await Sales.find()
+            if(user && product) sales = await Sales.find({id_user:user, id_product:product })
+            if(user && !product) sales = await Sales.find({id_user:user})
+            if(!user && product) sales = await Sales.find({id_product:product})
+            if(!user && !product) sales = await Sales.find()
         }
-        sales !== null ?
+        sales === null || sales.length === 0  ? res.status(404).send('Sale not found')
+        : 
         res.send(sales)
-        : res.status(404).send('Sale not found')
     } catch (e) {
         res.status(500).send("There was a problem with the request")
     }
