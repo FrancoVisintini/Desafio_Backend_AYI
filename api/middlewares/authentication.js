@@ -14,7 +14,6 @@ function verifyToken(req, res, next){
 
         jwt.verify(token, SECRET_KEY, (error,decoded)=>{
             if(error){
-                console.log('que le pasa al token', error)
                 return res.send({
                     error: "token not valid",
                     token
